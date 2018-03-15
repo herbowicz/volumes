@@ -1,5 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import {debounce} from 'throttle-debounce';
+
 
 class Volume extends React.Component{
     constructor(props){
@@ -7,24 +9,34 @@ class Volume extends React.Component{
         this.state = {
          volumeSearched: 1
         }
+        this.fetchUpdate = debounce(500, this.fetchUpdate);
     }
 
     handleSearch = (e) => {
+        console.log(e.target)
         this.setState({
             volumeSearched: e.target.value,
         })
     }
 
-    componentDidMount(){
-            fetch('https://www.googleapis.com/books/v1/volumes?q=' + this.state.volumeSearched)
+    fetchUpdate = (searchVolume) => {
+        fetch('https://www.googleapis.com/books/v1/volumes?q=' + searchVolume)
             .then(resp=>{
                 return resp.json();
             })
             .then(data => {
                 console.log(data)
             }
-            )
-        }
+        )
+    }
+
+    componentDidMount(){
+        this.fetchUpdate(this.state.volumeSearched)           
+    }
+
+    componentDidUpdate(){
+        this.fetchUpdate(this.state.volumeSearched)           
+    }
 
     render(){ 
         return (
